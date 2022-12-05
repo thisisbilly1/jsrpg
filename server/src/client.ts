@@ -1,6 +1,5 @@
-
 import { server, user, message, client } from './serverTypes'
-import networkContants from './networkConstants.json';
+import networkContants from '../../networkConstants.json';
 
 function isLoggedIn(target: Object, key: string | symbol, descriptor: PropertyDescriptor) {
   const fn = descriptor.value;

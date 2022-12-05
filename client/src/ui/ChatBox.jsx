@@ -1,7 +1,7 @@
 import { useRef, useState } from "react";
 import { Resizable } from "./Resizable/Resizable";
 import './chatbox.scss';
-import networkConstants from '../../utils/networkConstants.json';
+import networkConstants from '../../../networkConstants.json';
 
 export function ChatBox({ client }) {
   const message = useRef();

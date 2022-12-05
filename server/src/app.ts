@@ -2,7 +2,7 @@ import { WebSocketServer } from 'ws';
 import { Client } from './client';
 import { server, message } from './serverTypes';
 import { connect } from './db';
-import networkContants from './networkConstants.json';
+import networkContants from '../../networkConstants.json';
 
 class Server implements server {
   clients: Map<any, any>;

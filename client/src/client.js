@@ -1,4 +1,4 @@
-import networkConstants from '../utils/networkConstants.json';
+import networkConstants from '../../networkConstants.json';
 
 export class client {
   constructor(setStatus) {
