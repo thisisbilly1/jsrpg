@@ -7,9 +7,7 @@ export function Resizable({ children, defaultHeight = 300 }) {
   return (
     <>
       <div style={{ height: height }}>
-        <Resizer setHeight={setHeight} height={height}>
-          <div className="resizer"></div>
-        </Resizer>
+        <Resizer setHeight={setHeight} height={height} />
         {children}
       </div>
     </>

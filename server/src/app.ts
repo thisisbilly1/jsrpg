@@ -1,5 +1,6 @@
 import { WebSocketServer } from 'ws';
 import { Client } from './client';
+import { worldManager } from './worldManager';
 import { server, message } from './serverTypes';
 import { connect } from './db';
 import networkContants from '../../networkConstants.json';
@@ -40,7 +41,9 @@ class Server implements server {
 
 async function start() {
   const db = await connect();
-  new Server(1337, db);
+  const server = new Server(1337, db);
+  const wm = new worldManager(server);
+  wm.run();
 }
 
 start();

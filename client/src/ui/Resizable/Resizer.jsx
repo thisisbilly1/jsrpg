@@ -16,6 +16,6 @@ export function Resizer({ setHeight, height, children, minHeight = 100 }) {
   }
 
   return (
-    <div onMouseDown={startResizing}>{children}</div>
+    <div onMouseDown={startResizing} className="resizer"></div>
   )
 }
