@@ -1,4 +1,6 @@
 import { server, user, message, client } from './serverTypes'
+import { entity, keyInputs } from './entityTypes'
+import { Entity } from './entity'
 import networkContants from '../../networkConstants.json';
 
 function isLoggedIn(target: Object, key: string | symbol, descriptor: PropertyDescriptor) {
@@ -22,14 +24,21 @@ function isLoggedOut(target: Object, key: string | symbol, descriptor: PropertyD
 }
 
 export class Client implements client {
-  socket: any;
-  server: server;
-  user: user | null;
+  socket: any
+  server: server
+  user: user | null
+  entity: entity
+  pid: number
   constructor(socket: any, server: server) {
-    this.socket = socket;
-    this.server = server;
-    this.user = null;
+    this.socket = socket
+    this.server = server
+    this.user = null
+    this.pid = [...this.server.clients.keys()].length
+    this.entity = new Entity()
 
+    this.setUpSockets()
+  }
+  setUpSockets() {
     this.socket.on('message', (str: string) => {
       const message = JSON.parse(str);
       switch (message.id) {
@@ -45,16 +54,31 @@ export class Client implements client {
         case networkContants.message:
           this.message(message);
           break;
+        // move
+        case networkContants.move:
+          this.move(message);
+          break;
       }
-    });
+    })
     this.socket.on('close', (socket: any) => this.server.closeConnection(socket, this.user?.username));
+  }
+
+  @isLoggedIn
+  move({ forward, back, left, right, jump }: message) {
+    this.entity.keyInputs = {
+      forward,
+      back,
+      left,
+      right,
+      jump
+    } as keyInputs
   }
 
   @isLoggedIn
   message({ message }: message) {
     this.server.sendAll({
       id: networkContants.message, message: `${this.user?.username}: ${message}`
-    });
+    })
   }
 
   @isLoggedOut
@@ -64,7 +88,7 @@ export class Client implements client {
       // set the user
       this.user = { username } as user;
       // send the login packet
-      this.send({ id: networkContants.login, loggedIn: true });
+      this.send({ id: networkContants.login, loggedIn: true, pid: this.pid });
       // send login message
       this.server.sendAll({
         id: networkContants.message, message: `${username} has logged in!`

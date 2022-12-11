@@ -6,6 +6,9 @@ export class client {
     this.authenticated = false;
     this.setStatus = setStatus;
     this.handleChatMessages = null;
+    this.pid = null;
+
+    this.movementHandlers = {};
   }
   connect() {
     this.socket = new WebSocket('ws:localhost:1337');
@@ -45,19 +48,27 @@ export class client {
   }
   handlePackets({ data }) {
     const message = JSON.parse(data);
-    console.log(message);
+    // console.log(message);
     switch (message.id) {
       // login
       case networkConstants.login:
         this.handleLogin(message);
         break;
       case networkConstants.message:
-        this.handleChatMessages(message)
+        if (this.handleChatMessages) this.handleChatMessages(message)
+        break;
+      case networkConstants.move:
+        const pid = message.pid;
+        // console.log(this.movementHandlers)
+        if (this.movementHandlers[pid]) this.movementHandlers[pid](message);
         break;
     }
   }
-  handleLogin({ loggedIn }) {
-    if (loggedIn) this.setStatus('logged in');
+  handleLogin({ loggedIn, pid }) {
+    if (loggedIn) {
+      this.pid = pid;
+      this.setStatus('logged in');
+    }
     // failed to log in, close ws connection
     else {
       this.setStatus(null);

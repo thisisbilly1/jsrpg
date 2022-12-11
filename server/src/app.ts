@@ -1,12 +1,12 @@
 import { WebSocketServer } from 'ws';
 import { Client } from './client';
 import { worldManager } from './worldManager';
-import { server, message } from './serverTypes';
+import { server, message, client } from './serverTypes';
 import { connect } from './db';
 import networkContants from '../../networkConstants.json';
 
 class Server implements server {
-  clients: Map<any, any>;
+  clients: Map<WebSocket, client>
   server: any;
   db: any;
   constructor(port: number, db: any) {
@@ -24,7 +24,7 @@ class Server implements server {
       this.clients.set(socket, c);
     });
   }
-  closeConnection(socket: any, username?: string) {
+  closeConnection(socket: WebSocket, username?: string): void {
     console.log('connection gone');
     this.clients.delete(socket);
     if (username)
@@ -32,14 +32,14 @@ class Server implements server {
         id: networkContants.message, message: `${username} has logged out.`
       });
   }
-  sendAll(message: message) {
-    [...this.clients.keys()].forEach(client => {
-      client.send(JSON.stringify(message));
-    });
+  sendAll(message: message): void {
+    for (const [socket] of this.clients) {
+      socket.send(JSON.stringify(message));
+    }
   }
 }
 
-async function start() {
+async function start(): Promise<void> {
   const db = await connect();
   const server = new Server(1337, db);
   const wm = new worldManager(server);
