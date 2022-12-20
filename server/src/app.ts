@@ -1,6 +1,6 @@
 import { WebSocketServer } from 'ws';
 import { Client } from './client';
-import { worldManager } from './worldManager';
+import { WorldManager } from './worldManager';
 import { server, message, client } from './serverTypes';
 import { connect } from './db';
 import networkContants from '../../networkConstants.json';
@@ -9,21 +9,26 @@ class Server implements server {
   clients: Map<WebSocket, client>
   server: any;
   db: any;
+  port: number;
   constructor(port: number, db: any) {
-    this.clients = new Map();
-    this.server = new WebSocketServer({ port });
     this.db = db;
+    this.port = port;
+    this.clients = new Map();
+    this.server = null;
+  }
 
+  start() {
+    this.server = new WebSocketServer({ port: this.port });
     this.server.on('listening', () => {
-      console.log(`server listening on port ${port}`);
+      console.log(`server listening on port ${this.port}`);
     });
-
     this.server.on('connection', (socket: any) => {
       console.log('new connection!');
       const c = new Client(socket, this);
       this.clients.set(socket, c);
     });
   }
+
   closeConnection(socket: WebSocket, username?: string): void {
     console.log('connection gone');
     this.clients.delete(socket);
@@ -42,8 +47,9 @@ class Server implements server {
 async function start(): Promise<void> {
   const db = await connect();
   const server = new Server(1337, db);
-  const wm = new worldManager(server);
+  const wm = new WorldManager(server);
   wm.run();
+  server.start();
 }
 
 start();

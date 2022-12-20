@@ -41,12 +41,14 @@ function App() {
     default:
       return (
         <div className="App">
-          <form onSubmit={login} >
-            <div><input type="text" ref={username} defaultValue={'test'}></input></div>
-            <div><input type="password" ref={password} defaultValue={'test'}></input></div>
-            <button type="submit">Login</button>
-          </form>
-          <button onClick={register}>Register</button>
+          <div className='login'>
+            <form onSubmit={login} >
+              <div><input type="text" ref={username} defaultValue={'test'}></input></div>
+              <div><input type="password" ref={password} defaultValue={'test'}></input></div>
+              <button type="submit">Login</button>
+            </form>
+            <button onClick={register}>Register</button>
+          </div>
         </div>
       )
   }

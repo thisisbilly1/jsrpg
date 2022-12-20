@@ -1,5 +1,6 @@
 import { server, user, message, client } from './serverTypes'
-import { entity, keyInputs } from './entityTypes'
+import { messageMove } from './messageTypes';
+import { entity } from './entityTypes'
 import { Entity } from './entity'
 import networkContants from '../../networkConstants.json';
 
@@ -64,14 +65,15 @@ export class Client implements client {
   }
 
   @isLoggedIn
-  move({ forward, back, left, right, jump }: message) {
+  move({ forward, back, left, right, jump, angle }: messageMove) {
     this.entity.keyInputs = {
       forward,
       back,
       left,
       right,
       jump
-    } as keyInputs
+    }
+    this.entity.angle = angle;
   }
 
   @isLoggedIn
@@ -100,14 +102,18 @@ export class Client implements client {
   @isLoggedOut
   register(message: message) {
     const { username, password } = message;
-    this.server.db.write(() => {
-      this.server.db.create('User', {
-        username,
-        password,
-      })
-    });
-    console.log(`${username} has registered!`)
-    this.login(message);
+    try {
+      this.server.db.write(() => {
+        this.server.db.create('User', {
+          username,
+          password,
+        })
+      });
+      console.log(`${username} has registered!`)
+      this.login(message);
+    } catch (e) {
+      this.send({ id: networkContants.login, loggedIn: false })
+    }
   }
 
   send(message: message) {

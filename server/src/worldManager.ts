@@ -1,14 +1,26 @@
 import { server } from './serverTypes'
+import { worldManager } from './entityTypes';
 import networkContants from '../../networkConstants.json';
+// import { GLTFLoader } from './helpers/GLTFLoader';
+// import { DRACOLoader } from './helpers/DRACOLoader';
+// require('./helpers/GLTFLoader2');l
+import { OBJLoader } from './helpers/OBJLoader';
+import * as BufferGeometryUtils from './helpers/BufferGeometryUtils';
+import { MeshBVH } from 'three-mesh-bvh';
+import { Box3, BufferGeometry, Mesh } from 'three';
+import fs from 'fs';
+import path from 'path';
 
-export class worldManager {
+export class WorldManager implements worldManager {
   server: server;
   tickRate: number;
   tickTimer: number;
+  collider: Mesh | null
   constructor(server: server) {
     this.server = server;
     this.tickRate = 10;
     this.tickTimer = 0;
+    this.collider = null;
   }
 
   update(timeElapsed: number) {
@@ -22,11 +34,13 @@ export class worldManager {
     // })
     // update all the client's entities
     for (const [_, client] of this.server.clients) {
-      client.entity.update(timeElapsed)
+      client.entity.update(this, timeElapsed)
       this.server.sendAll({
         id: networkContants.move,
         pid: client.pid,
-        ...client.entity.location
+        x: client.entity.mesh.position.x,
+        y: client.entity.mesh.position.y,
+        z: client.entity.mesh.position.z
       })
     }
   }
@@ -39,7 +53,33 @@ export class worldManager {
     });
   }
 
-  run() {
+  loadWorld() {
+    console.log(__dirname);
+    const data = fs.readFileSync(path.resolve(__dirname, '../../world/world.obj'), 'utf8');
+    const objLoader = new OBJLoader();
+    const group = objLoader.parse(data);
+    const geometries: BufferGeometry[] = [];
+    group.traverse(child => {
+      if ((<Mesh>child).geometry) {
+        const cloned = (<Mesh>child).geometry.clone();
+        cloned.applyMatrix4(child.matrixWorld);
+        for (const key in cloned.attributes) {
+          if (key !== 'position') {
+            cloned.deleteAttribute(key);
+          }
+        }
+        geometries.push(cloned);
+      }
+    });
+    const mergedGeometry = BufferGeometryUtils.mergeBufferGeometries(geometries, false);
+    mergedGeometry.boundsTree = new MeshBVH(mergedGeometry);
+    this.collider = new Mesh(mergedGeometry);
+  }
+  async run() {
+    // load the world
+    console.log('loading world...');
+    this.loadWorld();
+    console.log('starting world');
     const t1 = performance.now();
     this.schedule(t1);
   }

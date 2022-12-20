@@ -1,3 +1,5 @@
+import { server } from './serverTypes';
+
 export type camera = {
   x: number
   y: number
@@ -11,15 +13,22 @@ export type keyInputs = {
   jump: Boolean
 }
 
-export type location = {
-  x: number
-  y: number
-  z: number
+import { Line3, Vector3, Mesh } from 'three';
+export interface worldManager {
+  server: server;
+  tickRate: number;
+  tickTimer: number;
+  collider: Mesh | null;
 }
 
+export interface collider {
+  radius: number
+  segment: Line3
+}
 export interface entity {
-  location: location
-  camera: camera
+  mesh: Mesh
   keyInputs: keyInputs
-  update(timeElapsed: number): void
+  update(worldManager: worldManager, timeElapsed: number): void
+  angle: number
+  collider: collider
 }
