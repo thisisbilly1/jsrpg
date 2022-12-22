@@ -1,5 +1,5 @@
 import networkConstants from '../../networkConstants.json';
-
+import { playerController } from './game/playerController';
 export class client {
   constructor(setStatus) {
     this.socket = null;
@@ -8,7 +8,8 @@ export class client {
     this.handleChatMessages = null;
     this.pid = null;
 
-    this.movementHandlers = {};
+    this.playerOthers = {};
+    this.playerSelf = new playerController();
   }
   connect() {
     this.socket = new WebSocket('ws:localhost:1337');
@@ -54,19 +55,31 @@ export class client {
       case networkConstants.login:
         this.handleLogin(message);
         break;
+      case networkConstants.joined:
+        this.handlePlayerJoined(message);
+        break;
+      case networkConstants.leave:
+        this.handlePlayerLeave(message);
+        break;
       case networkConstants.message:
         if (this.handleChatMessages) this.handleChatMessages(message)
         break;
       case networkConstants.move:
         const pid = message.pid;
-        // console.log(this.movementHandlers)
-        if (this.movementHandlers[pid]) this.movementHandlers[pid](message);
+        if (pid === this.playerSelf.pid) this.playerSelf.handleMove(message);
+        else this.playerOthers[pid]?.handleMove(message);
         break;
     }
   }
+  handlePlayerJoined({ pid }) {
+    this.playerOthers[pid] = new playerController(pid);
+  }
+  handlePlayerLeave({ pid }) {
+    delete this.playerOthers[pid]
+  }
   handleLogin({ loggedIn, pid }) {
     if (loggedIn) {
-      this.pid = pid;
+      this.playerSelf.pid = pid;
       this.setStatus('logged in');
     }
     // failed to log in, close ws connection

@@ -12,21 +12,23 @@ import fs from 'fs';
 import path from 'path';
 
 export class WorldManager implements worldManager {
-  server: server;
-  tickRate: number;
-  tickTimer: number;
+  server: server
+  tickRate: number
+  tickTimer: number
   collider: Mesh | null
+  physicsSteps: number
   constructor(server: server) {
-    this.server = server;
-    this.tickRate = 10;
-    this.tickTimer = 0;
-    this.collider = null;
+    this.server = server
+    this.tickRate = 10
+    this.tickTimer = 0
+    this.collider = null
+    this.physicsSteps = 3
   }
 
   update(timeElapsed: number) {
-    this.tickTimer += timeElapsed;
-    if (this.tickTimer < this.tickRate) return;
-    this.tickTimer = 0;
+    this.tickTimer += timeElapsed
+    if (this.tickTimer < this.tickRate) return
+    this.tickTimer = 0
 
     // this.server.sendAll({
     //   id: networkContants.message,
@@ -34,7 +36,9 @@ export class WorldManager implements worldManager {
     // })
     // update all the client's entities
     for (const [_, client] of this.server.clients) {
-      client.entity.update(this, timeElapsed)
+      for (let i = 0; i < this.physicsSteps; i++) {
+        client.entity.update(this, timeElapsed / this.physicsSteps)
+      }
       this.server.sendAll({
         id: networkContants.move,
         pid: client.pid,

@@ -31,4 +31,6 @@ export interface entity {
   update(worldManager: worldManager, timeElapsed: number): void
   angle: number
   collider: collider
+  grounded: Boolean
+  velocity: Vector3
 }

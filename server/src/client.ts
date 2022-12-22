@@ -74,6 +74,9 @@ export class Client implements client {
       jump
     }
     this.entity.angle = angle;
+    if (jump) {
+      if (this.entity.grounded) this.entity.velocity.y = 10;
+    }
   }
 
   @isLoggedIn

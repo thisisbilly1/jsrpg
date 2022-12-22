@@ -2,5 +2,7 @@
   "login": 0,
   "register": 1,
   "message": 2,
-  "move": 3
+  "move": 3,
+  "joined": 4,
+  "leave": 5
 }

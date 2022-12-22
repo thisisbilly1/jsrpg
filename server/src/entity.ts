@@ -78,11 +78,11 @@ export class Entity implements entity {
       this.mesh.position.addScaledVector(tempVector, this.speed * delta);
     }
 
-    if (this.grounded) {
-      if (this.keyInputs.jump) {
-        this.velocity.y = 10;
-      }
-    }
+    // if (this.grounded) {
+    //   if (this.keyInputs.jump) {
+    //     this.velocity.y = 10;
+    //   }
+    // }
     this.mesh.updateMatrixWorld();
   }
 
