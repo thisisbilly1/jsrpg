@@ -14,7 +14,7 @@ export interface client {
 
 export interface server {
   closeConnection(socket: any, username?: string): void
-  sendAll(message: message): void
+  sendAll(message: message, nonIncludedPids?: number[]): void
   db: any
   clients: Map<WebSocket, client>
 }

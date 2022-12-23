@@ -71,10 +71,16 @@ export class client {
         break;
     }
   }
-  handlePlayerJoined({ pid }) {
-    this.playerOthers[pid] = new playerController(pid);
+  handlePlayerJoined({ pid, username }) {
+    if (this.handleChatMessages) this.handleChatMessages({
+      message: `${username} has logged in!`
+    })
+    this.playerOthers[pid] = new playerController(pid, username);
   }
   handlePlayerLeave({ pid }) {
+    if (this.handleChatMessages) this.handleChatMessages({
+      message: `${this.playerOthers[pid]?.username} has logged out`
+    })
     delete this.playerOthers[pid]
   }
   handleLogin({ loggedIn, pid }) {

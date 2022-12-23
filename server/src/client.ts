@@ -61,7 +61,7 @@ export class Client implements client {
           break;
       }
     })
-    this.socket.on('close', (socket: any) => this.server.closeConnection(socket, this.user?.username));
+    this.socket.on('close', () => this.server.closeConnection(this));
   }
 
   @isLoggedIn
@@ -88,18 +88,41 @@ export class Client implements client {
 
   @isLoggedOut
   login({ username, password }: message) {
-    const user = this.server.db.objectForPrimaryKey("User", username);
-    if (user && user.password === password) {
+    const failedLoginMessage = { id: networkContants.login, loggedIn: false };
+    if (!this.canLogIn(String(username), String(password))) this.send(failedLoginMessage);
+    else {
       // set the user
       this.user = { username } as user;
       // send the login packet
       this.send({ id: networkContants.login, loggedIn: true, pid: this.pid });
       // send login message
-      this.server.sendAll({
-        id: networkContants.message, message: `${username} has logged in!`
-      });
+      this.sendOthers({
+        id: networkContants.joined,
+        username,
+        pid: this.pid,
+      })
       console.log(`${username} has logged in!`)
-    } else this.send({ id: networkContants.login, loggedIn: false })
+      // send everyone elses info to me
+      for (const [_socket, client] of this.server.clients) {
+        if (client.user?.username && client.pid !== this.pid) {
+          this.send({
+            id: networkContants.joined,
+            username: client.user.username,
+            pid: client.pid,
+          })
+        };
+      }
+    }
+  }
+
+  canLogIn(username: string, password: string) {
+    const user = this.server.db.objectForPrimaryKey("User", username);
+    if (!(user && user.password === password)) return false;
+    // check if they are logged in already
+    for (const [_socket, client] of this.server.clients) {
+      if (client.user?.username === username) return false;
+    }
+    return true;
   }
 
   @isLoggedOut
@@ -121,5 +144,11 @@ export class Client implements client {
 
   send(message: message) {
     this.socket.send(JSON.stringify(message));
+  }
+
+  sendOthers(message: message) {
+    this.server.sendAll(message,
+      // dont include myself
+      [this.pid]);
   }
 }

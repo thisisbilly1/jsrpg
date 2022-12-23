@@ -29,17 +29,18 @@ class Server implements server {
     });
   }
 
-  closeConnection(socket: WebSocket, username?: string): void {
+  closeConnection(client: client): void {
     console.log('connection gone');
-    this.clients.delete(socket);
-    if (username)
-      this.sendAll({
-        id: networkContants.message, message: `${username} has logged out.`
-      });
+    this.clients.delete(client.socket);
+    if (client?.user) {
+      this.sendAll({ id: networkContants.leave, pid: client.pid });
+      console.log(`${client.user.username} has logged out`);
+    }
   }
-  sendAll(message: message): void {
-    for (const [socket] of this.clients) {
-      socket.send(JSON.stringify(message));
+  sendAll(message: message, nonIncludedPids?: number[]): void {
+    for (const [socket, client] of this.clients) {
+      if (!nonIncludedPids?.includes(client.pid))
+        socket.send(JSON.stringify(message));
     }
   }
 }

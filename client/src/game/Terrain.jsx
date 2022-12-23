@@ -3,5 +3,7 @@ import { useLoader } from '@react-three/fiber'
 
 export function Terrain() {
   const obj = useLoader(OBJLoader, '/world.obj')
-  return <primitive object={obj} />
+  return <mesh receiveShadow castShadow>
+    <primitive object={obj} />
+  </mesh>
 }
