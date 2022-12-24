@@ -1,7 +1,6 @@
-import { server, user, message, client } from './serverTypes'
-import { messageMove } from './messageTypes';
-import { entity } from './entityTypes'
-import { Entity } from './entity'
+import { serverType } from './app';
+import { message, messageMove } from './messageTypes';
+import { Player } from './entities/player';
 import networkContants from '../../networkConstants.json';
 
 function isLoggedIn(target: Object, key: string | symbol, descriptor: PropertyDescriptor) {
@@ -24,18 +23,22 @@ function isLoggedOut(target: Object, key: string | symbol, descriptor: PropertyD
   }
 }
 
-export class Client implements client {
+
+interface user {
+  username: string
+}
+export class Client {
   socket: any
-  server: server
+  server: serverType
   user: user | null
-  entity: entity
+  entity: Player
   pid: number
-  constructor(socket: any, server: server) {
+  constructor(socket: any, server: serverType) {
     this.socket = socket
     this.server = server
     this.user = null
     this.pid = [...this.server.clients.keys()].length
-    this.entity = new Entity()
+    this.entity = new Player()
 
     this.setUpSockets()
   }

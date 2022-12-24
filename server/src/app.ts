@@ -1,12 +1,20 @@
 import { WebSocketServer } from 'ws';
 import { Client } from './client';
 import { WorldManager } from './worldManager';
-import { server, message, client } from './serverTypes';
+import { message } from './messageTypes';
 import { connect } from './db';
 import networkContants from '../../networkConstants.json';
 
-class Server implements server {
-  clients: Map<WebSocket, client>
+
+export interface serverType {
+  closeConnection(socket: any, username?: string): void
+  sendAll(message: message, nonIncludedPids?: number[]): void
+  db: any
+  clients: Map<WebSocket, Client>
+}
+
+class Server implements serverType {
+  clients: Map<WebSocket, Client>
   server: any;
   db: any;
   port: number;
@@ -29,7 +37,7 @@ class Server implements server {
     });
   }
 
-  closeConnection(client: client): void {
+  closeConnection(client: Client): void {
     console.log('connection gone');
     this.clients.delete(client.socket);
     if (client?.user) {

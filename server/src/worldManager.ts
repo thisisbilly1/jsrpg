@@ -1,23 +1,19 @@
-import { server } from './serverTypes'
-import { worldManager } from './entityTypes';
+import { serverType } from './app';
 import networkContants from '../../networkConstants.json';
-// import { GLTFLoader } from './helpers/GLTFLoader';
-// import { DRACOLoader } from './helpers/DRACOLoader';
-// require('./helpers/GLTFLoader2');l
 import { OBJLoader } from './helpers/OBJLoader';
 import * as BufferGeometryUtils from './helpers/BufferGeometryUtils';
 import { MeshBVH } from 'three-mesh-bvh';
-import { Box3, BufferGeometry, Mesh } from 'three';
+import { BufferGeometry, Mesh } from 'three';
 import fs from 'fs';
 import path from 'path';
 
-export class WorldManager implements worldManager {
-  server: server
+export class WorldManager {
+  server: serverType
   tickRate: number
   tickTimer: number
   collider: Mesh | null
   physicsSteps: number
-  constructor(server: server) {
+  constructor(server: serverType) {
     this.server = server
     this.tickRate = 10
     this.tickTimer = 0

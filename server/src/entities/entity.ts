@@ -1,17 +1,20 @@
 import { Box3, Line3, Matrix4, Mesh, Vector3 } from 'three';
-import { entity, camera, keyInputs, collider } from './entityTypes'
-import { worldManager } from './entityTypes';
+import { WorldManager } from '../worldManager';
 
-const upVector = new Vector3(0, 1, 0);
 const tempVector = new Vector3();
 const tempVector2 = new Vector3();
 const tempBox = new Box3();
 const tempMat = new Matrix4();
 const tempSegment = new Line3();
 
-export class Entity implements entity {
+interface collider {
+  radius: number
+  segment: Line3
+}
+
+export class Entity {
   mesh: Mesh
-  keyInputs: keyInputs
+
   grounded: Boolean
   gravity: number
   velocity: Vector3
@@ -20,14 +23,6 @@ export class Entity implements entity {
   speed: number
   constructor() {
     this.mesh = new Mesh()
-
-    this.keyInputs = {
-      forward: false,
-      back: false,
-      left: false,
-      right: false,
-      jump: false,
-    };
 
     this.grounded = false
     this.gravity = -30
@@ -48,7 +43,7 @@ export class Entity implements entity {
     this.mesh.position.set(0, 10, 0)
   }
 
-  update(worldManager: worldManager, delta: number) {
+  update(worldManager: WorldManager, delta: number) {
     const deltaSeconds = delta / 1000;
     this.velocity.y += this.grounded ? 0 : deltaSeconds * this.gravity;
     this.mesh.position.addScaledVector(this.velocity, deltaSeconds);
@@ -58,35 +53,11 @@ export class Entity implements entity {
   }
 
   controls(delta: number) {
-    if (this.keyInputs.forward) {
-      tempVector.set(0, 0, - 1).applyAxisAngle(upVector, this.angle);
-      this.mesh.position.addScaledVector(tempVector, this.speed * delta);
-    }
-
-    if (this.keyInputs.back) {
-      tempVector.set(0, 0, 1).applyAxisAngle(upVector, this.angle);
-      this.mesh.position.addScaledVector(tempVector, this.speed * delta);
-    }
-
-    if (this.keyInputs.left) {
-      tempVector.set(-1, 0, 0).applyAxisAngle(upVector, this.angle);
-      this.mesh.position.addScaledVector(tempVector, this.speed * delta);
-    }
-
-    if (this.keyInputs.right) {
-      tempVector.set(1, 0, 0).applyAxisAngle(upVector, this.angle);
-      this.mesh.position.addScaledVector(tempVector, this.speed * delta);
-    }
-
-    // if (this.grounded) {
-    //   if (this.keyInputs.jump) {
-    //     this.velocity.y = 10;
-    //   }
-    // }
+    // Put the controls here--
     this.mesh.updateMatrixWorld();
   }
 
-  collision(worldManager: worldManager, delta: number) {
+  collision(worldManager: WorldManager, delta: number) {
     if (!worldManager.collider || !worldManager.collider.geometry.boundsTree) return;
 
     // adjust player position based on collisions
