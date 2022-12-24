@@ -6,6 +6,7 @@ import { MeshBVH } from 'three-mesh-bvh';
 import { BufferGeometry, Mesh } from 'three';
 import fs from 'fs';
 import path from 'path';
+import { NPC } from './entities/npc';
 
 export class WorldManager {
   server: serverType
@@ -13,12 +14,17 @@ export class WorldManager {
   tickTimer: number
   collider: Mesh | null
   physicsSteps: number
+  npcs: NPC[]
   constructor(server: serverType) {
     this.server = server
     this.tickRate = 10
     this.tickTimer = 0
     this.collider = null
     this.physicsSteps = 3
+    this.npcs = [
+      // test npc
+      new NPC(0)
+    ]
   }
 
   update(timeElapsed: number) {
@@ -26,10 +32,20 @@ export class WorldManager {
     if (this.tickTimer < this.tickRate) return
     this.tickTimer = 0
 
-    // this.server.sendAll({
-    //   id: networkContants.message,
-    //   message: `test tick: ${timeElapsed}`
-    // })
+    // update the npcs
+    for (const npc of this.npcs) {
+      for (let i = 0; i < this.physicsSteps; i++) {
+        npc.update(this, timeElapsed / this.physicsSteps)
+      }
+      this.server.sendAll({
+        id: networkContants.npcMove,
+        npcId: npc.id,
+        x: npc.mesh.position.x,
+        y: npc.mesh.position.y,
+        z: npc.mesh.position.z
+      })
+    }
+
     // update all the client's entities
     for (const [_, client] of this.server.clients) {
       for (let i = 0; i < this.physicsSteps; i++) {

@@ -1,5 +1,6 @@
 import networkConstants from '../../networkConstants.json';
 import { playerController } from './game/playerController';
+import { npcController } from './game/npcController';
 export class client {
   constructor(setStatus) {
     this.socket = null;
@@ -10,6 +11,7 @@ export class client {
 
     this.playerOthers = {};
     this.playerSelf = new playerController();
+    this.npcs = {};
   }
   connect() {
     this.socket = new WebSocket('ws:localhost:1337');
@@ -65,11 +67,23 @@ export class client {
         if (this.handleChatMessages) this.handleChatMessages(message)
         break;
       case networkConstants.move:
-        const pid = message.pid;
-        if (pid === this.playerSelf.pid) this.playerSelf.handleMove(message);
-        else this.playerOthers[pid]?.handleMove(message);
+        this.handleMove(message)
+        break;
+      case networkConstants.npcMove:
+        this.handleNpcMove(message)
         break;
     }
+  }
+  handleNpcMove(message) {
+    const npcId = message.npcId;
+    // create an npc if one does not exist
+    if (!this.npcs[npcId]) this.npcs[npcId] = new npcController(npcId, {});
+    this.npcs[npcId].handleMove(message)
+  }
+  handleMove(message) {
+    const pid = message.pid
+    if (pid === this.playerSelf.pid) this.playerSelf.handleMove(message)
+    else this.playerOthers[pid]?.handleMove(message)
   }
   handlePlayerJoined({ pid, username }) {
     if (this.handleChatMessages) this.handleChatMessages({

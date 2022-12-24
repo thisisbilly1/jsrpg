@@ -43,7 +43,11 @@ export function World({ client }) {
         <Player playerController={client.playerSelf} />
         <CameraController playerController={client.playerSelf} setCameraAngle={setCameraAngle} />
       </group>
+      {/* other players*/}
       {Object.values(client.playerOthers).map(player => <Player playerController={player} key={player.pid} />)}
+
+      {/* npcs*/}
+      {Object.values(client.npcs).map(npc => <Player playerController={npc} key={npc.npcId} />)}
       <Terrain />
     </>
   )

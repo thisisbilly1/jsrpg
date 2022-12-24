@@ -4,5 +4,6 @@
   "message": 2,
   "move": 3,
   "joined": 4,
-  "leave": 5
+  "leave": 5,
+  "npcMove": 6
 }

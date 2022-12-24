@@ -14,7 +14,6 @@ interface collider {
 
 export class Entity {
   mesh: Mesh
-
   grounded: Boolean
   gravity: number
   velocity: Vector3
