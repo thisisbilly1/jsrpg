@@ -11,18 +11,22 @@ export interface serverType {
   sendAll(message: message, nonIncludedPids?: number[]): void
   db: any
   clients: Map<WebSocket, Client>
+  worldManager: WorldManager | null
+  sendNpcs(client: Client): void
 }
 
 class Server implements serverType {
   clients: Map<WebSocket, Client>
-  server: any;
-  db: any;
-  port: number;
+  server: WebSocketServer | null
+  db: any
+  port: number
+  worldManager: WorldManager | null
   constructor(port: number, db: any) {
-    this.db = db;
-    this.port = port;
-    this.clients = new Map();
-    this.server = null;
+    this.db = db
+    this.port = port
+    this.clients = new Map()
+    this.server = null
+    this.worldManager = null
   }
 
   start() {
@@ -51,14 +55,18 @@ class Server implements serverType {
         socket.send(JSON.stringify(message));
     }
   }
+  sendNpcs(client: Client) {
+    this.worldManager?.sendAllNpcs(client)
+  }
 }
 
 async function start(): Promise<void> {
-  const db = await connect();
-  const server = new Server(1337, db);
-  const wm = new WorldManager(server);
-  wm.run();
-  server.start();
+  const db = await connect()
+  const server = new Server(1337, db)
+  const wm = new WorldManager(server)
+  server.worldManager = wm
+  wm.run()
+  server.start()
 }
 
 start();

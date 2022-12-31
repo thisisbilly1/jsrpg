@@ -1,5 +1,5 @@
 import networkConstants from '../../networkConstants.json';
-import { playerController } from './game/playerController';
+import { playerController } from './game/player/playerController';
 import { npcController } from './game/npcController';
 export class client {
   constructor(setStatus) {
@@ -86,10 +86,10 @@ export class client {
     else this.playerOthers[pid]?.handleMove(message)
   }
   handlePlayerJoined({ pid, username }) {
+    this.playerOthers[pid] = new playerController(pid, username);
     if (this.handleChatMessages) this.handleChatMessages({
       message: `${username} has logged in!`
     })
-    this.playerOthers[pid] = new playerController(pid, username);
   }
   handlePlayerLeave({ pid }) {
     if (this.handleChatMessages) this.handleChatMessages({

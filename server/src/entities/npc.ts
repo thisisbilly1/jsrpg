@@ -20,19 +20,17 @@ export class NPC extends Entity {
   }
 
   controls(delta: number) {
-    // wandering
+    // TODO: add better wandering 
     if (!this.canWander) return
     if (this.wandering) {
       tempVector.set(0, 0, - 1).applyAxisAngle(upVector, this.angle)
       this.mesh.position.addScaledVector(tempVector, this.speed * delta)
       if (Math.random() <= this.wanderStopChance * delta) {
-        console.log('stop wandering')
         this.wandering = false
       }
     } else {
       if (Math.random() <= this.wanderChance * delta) {
         // set rotation to random for now
-        console.log('start wandering')
         this.angle = Math.random() * 2 * Math.PI
         this.wandering = true
       }

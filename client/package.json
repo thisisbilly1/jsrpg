@@ -16,6 +16,7 @@
     "react-dom": "^18.2.0",
     "sass": "^1.56.1",
     "three": "^0.147.0",
+    "three-mesh-bvh": "^0.5.19",
     "ws": "^8.11.0"
   },
   "devDependencies": {

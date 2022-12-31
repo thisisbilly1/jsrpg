@@ -7,6 +7,7 @@ import { BufferGeometry, Mesh } from 'three';
 import fs from 'fs';
 import path from 'path';
 import { NPC } from './entities/npc';
+import { Client } from './client';
 
 export class WorldManager {
   server: serverType
@@ -37,26 +38,43 @@ export class WorldManager {
       for (let i = 0; i < this.physicsSteps; i++) {
         npc.update(this, timeElapsed / this.physicsSteps)
       }
-      this.server.sendAll({
+      if (npc.shouldUpdateNetwork) {
+        this.server.sendAll({
+          id: networkContants.npcMove,
+          npcId: npc.id,
+          x: npc.mesh.position.x,
+          y: npc.mesh.position.y,
+          z: npc.mesh.position.z
+        })
+      }
+    }
+
+    // update all the clients' entities
+    for (const [_, client] of this.server.clients) {
+      for (let i = 0; i < this.physicsSteps; i++) {
+        client.entity.update(this, timeElapsed / this.physicsSteps)
+      }
+      if (client.entity.shouldUpdateNetwork) {
+        this.server.sendAll({
+          id: networkContants.move,
+          pid: client.pid,
+          x: client.entity.mesh.position.x,
+          y: client.entity.mesh.position.y,
+          z: client.entity.mesh.position.z
+        })
+      }
+    }
+  }
+
+  // sends all npcs to a client on login
+  sendAllNpcs(client: Client) {
+    for (const npc of this.npcs) {
+      client.send({
         id: networkContants.npcMove,
         npcId: npc.id,
         x: npc.mesh.position.x,
         y: npc.mesh.position.y,
         z: npc.mesh.position.z
-      })
-    }
-
-    // update all the client's entities
-    for (const [_, client] of this.server.clients) {
-      for (let i = 0; i < this.physicsSteps; i++) {
-        client.entity.update(this, timeElapsed / this.physicsSteps)
-      }
-      this.server.sendAll({
-        id: networkContants.move,
-        pid: client.pid,
-        x: client.entity.mesh.position.x,
-        y: client.entity.mesh.position.y,
-        z: client.entity.mesh.position.z
       })
     }
   }

@@ -1,14 +1,17 @@
 import useKeyboard from './useKeyboard'
-import { Player } from "./Player";
+import { Player } from "./player/Player";
 import { Terrain } from "./Terrain";
 import { CameraController } from './CameraController';
-import { useRef, useState } from 'react';
+import { createContext, useRef, useState } from 'react';
 import { useFrame } from '@react-three/fiber';
 import networkConstants from '../../../networkConstants.json';
 
 const keybinds = ['KeyA', 'KeyD', 'KeyW', 'KeyS', 'Space']
 
+export const WorldContext = createContext()
+
 export function World({ client }) {
+  const world = useRef()
   const keyboard = useKeyboard()
   const prevKeyBoard = useRef({})
   const [cameraAngle, setCameraAngle] = useState(0)
@@ -39,16 +42,20 @@ export function World({ client }) {
 
   return (
     <>
-      <group>
-        <Player playerController={client.playerSelf} />
-        <CameraController playerController={client.playerSelf} setCameraAngle={setCameraAngle} />
-      </group>
-      {/* other players*/}
-      {Object.values(client.playerOthers).map(player => <Player playerController={player} key={player.pid} />)}
+      <WorldContext.Provider value={world.current}>
+        <group>
+          <Player playerController={client.playerSelf} key={'player-self'} />
+          <CameraController playerController={client.playerSelf} setCameraAngle={setCameraAngle} />
+        </group>
+        {/* other players*/}
+        {Object.values(client.playerOthers).map(player => <Player playerController={player} key={`player-other-${player.pid}`} />)}
 
-      {/* npcs*/}
-      {Object.values(client.npcs).map(npc => <Player playerController={npc} key={npc.npcId} />)}
-      <Terrain />
+        {/* npcs*/}
+        {/* {Object.values(client.npcs).map(npc => <Player playerController={npc} key={`npc-${npc.npcId}`} />)} */}
+        <group ref={world}>
+          <Terrain />
+        </group>
+      </WorldContext.Provider>
     </>
   )
 }

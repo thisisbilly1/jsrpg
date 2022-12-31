@@ -15,24 +15,32 @@ interface collider {
 export class Entity {
   mesh: Mesh
   grounded: Boolean
+  framesOffGround: number
   gravity: number
   velocity: Vector3
   angle: number
   collider: collider
   speed: number
+  shouldUpdateNetwork: Boolean
+  previousPosition: Vector3
   constructor() {
     this.mesh = new Mesh()
 
     this.grounded = false
+    // this is used to give the player a couple of frames to jump after they have gone off a ledge
+    this.framesOffGround = 0
     this.gravity = -30
 
-    this.velocity = new Vector3();
+    this.velocity = new Vector3()
     this.collider = {
       radius: 0.5,
       segment: new Line3(new Vector3(), new Vector3(0, -1, 0))
     }
     this.angle = 0
     this.speed = 10
+
+    this.previousPosition = new Vector3()
+    this.shouldUpdateNetwork = true;
 
     this.reset()
   }
@@ -43,12 +51,25 @@ export class Entity {
   }
 
   update(worldManager: WorldManager, delta: number) {
-    const deltaSeconds = delta / 1000;
-    this.velocity.y += this.grounded ? 0 : deltaSeconds * this.gravity;
-    this.mesh.position.addScaledVector(this.velocity, deltaSeconds);
+    this.previousPosition.copy(this.mesh.position)
+
+    const deltaSeconds = delta / 1000
+    this.velocity.y += this.grounded ? 0 : deltaSeconds * this.gravity
+    this.mesh.position.addScaledVector(this.velocity, deltaSeconds)
 
     this.controls(deltaSeconds)
-    this.collision(worldManager, deltaSeconds);
+    this.collision(worldManager, deltaSeconds)
+    this.checkUpdate()
+
+    if (!this.grounded) {
+      this.framesOffGround += 1
+    } else this.framesOffGround = 0
+  }
+  // checks wether the position changed + we need to update the clients
+  checkUpdate() {
+    this.shouldUpdateNetwork = false
+    if (!this.mesh.position.equals(this.previousPosition))
+      this.shouldUpdateNetwork = true
   }
 
   controls(delta: number) {

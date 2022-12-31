@@ -78,7 +78,7 @@ export class Client {
     }
     this.entity.angle = angle;
     if (jump) {
-      if (this.entity.grounded) this.entity.velocity.y = 10;
+      if (this.entity.framesOffGround < 5) this.entity.velocity.y = 10;
     }
   }
 
@@ -115,6 +115,8 @@ export class Client {
           })
         };
       }
+      // send all npcs to me
+      this.server.sendNpcs(this)
     }
   }
 
