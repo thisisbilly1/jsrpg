@@ -2,7 +2,7 @@ import useKeyboard from './useKeyboard'
 import { Player } from "./player/Player";
 import { Terrain } from "./Terrain";
 import { CameraController } from './CameraController';
-import { createContext, useRef, useState } from 'react';
+import { createContext, useRef, useState, Suspense } from 'react';
 import { useFrame } from '@react-three/fiber';
 import networkConstants from '../../../networkConstants.json';
 
@@ -43,15 +43,17 @@ export function World({ client }) {
   return (
     <>
       <WorldContext.Provider value={world.current}>
-        <group>
-          <Player playerController={client.playerSelf} key={'player-self'} />
-          <CameraController playerController={client.playerSelf} setCameraAngle={setCameraAngle} />
-        </group>
-        {/* other players*/}
-        {Object.values(client.playerOthers).map(player => <Player playerController={player} key={`player-other-${player.pid}`} />)}
+        <Suspense fallback={null}>
+          <group>
+            <Player playerController={client.playerSelf} key={'player-self'} />
+            <CameraController playerController={client.playerSelf} setCameraAngle={setCameraAngle} />
+          </group>
+          {/* other players*/}
+          {Object.values(client.playerOthers).map(player => <Player playerController={player} key={`player-other-${player.pid}`} />)}
 
-        {/* npcs*/}
-        {/* {Object.values(client.npcs).map(npc => <Player playerController={npc} key={`npc-${npc.npcId}`} />)} */}
+          {/* npcs*/}
+          {Object.values(client.npcs).map(npc => <Player playerController={npc} key={`npc-${npc.npcId}`} />)}
+        </Suspense>
         <group ref={world}>
           <Terrain />
         </group>

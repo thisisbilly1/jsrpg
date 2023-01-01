@@ -1,5 +1,5 @@
 import { useFrame } from '@react-three/fiber';
-import { useRef, Suspense, useState, useContext } from 'react';
+import { useRef, useState, useContext } from 'react';
 import { Model } from './PlayerModel';
 import { WorldContext } from '../World';
 import { Raycaster, Vector3 } from 'three';
@@ -25,7 +25,7 @@ function applyTransforms(playerController) {
       raycaster.firstHitOnly = true
       const res = raycaster.intersectObject(world, true)
       const length = res.length ? res[0].distance : 25
-      playerController.grounded = length < 1.6
+      playerController.grounded = length < 2
     }
 
     // update the player controller
@@ -41,10 +41,8 @@ export function Player({ playerController }) {
   playerController.setState = setState
 
   return (
-    <group ref={transforms} dispose={null}>
-      <Suspense fallback={null}>
-        <Model state={state} />
-      </Suspense>
+    <group ref={transforms}>
+      <Model state={state} />
     </group>
   )
 }

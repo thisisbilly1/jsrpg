@@ -1,12 +1,8 @@
-
-
-export class npcController {
+import { entityController } from "./entityController"
+export class npcController extends entityController {
   constructor(npcId, npcInfo) {
+    super()
     this.npcId = npcId
     this.npcInfo = npcInfo;
-    this.position = [0,0,0]
-  }
-  handleMove({x,y,z}) {
-    this.position = [x,y,z];
   }
 }

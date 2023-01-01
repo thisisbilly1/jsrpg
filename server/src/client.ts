@@ -78,7 +78,7 @@ export class Client {
     }
     this.entity.angle = angle;
     if (jump) {
-      if (this.entity.framesOffGround < 5) this.entity.velocity.y = 10;
+      if (this.entity.framesOffGround <= 20) this.entity.velocity.y = 10;
     }
   }
 
