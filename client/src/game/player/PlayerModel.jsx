@@ -7,6 +7,7 @@ import React, { useEffect, useMemo, useRef } from 'react'
 import { useGLTF, useAnimations } from '@react-three/drei'
 import { useGraph } from '@react-three/fiber'
 import { clone } from 'three/examples/jsm/utils/SkeletonUtils'
+import equipmentMap from './equipmentMap'
 
 function usePreviouos(value) {
   const ref = useRef()
@@ -16,7 +17,24 @@ function usePreviouos(value) {
   return ref.current
 }
 
+function BodyPart({ name, equipment, skeleton, defaultMaterial, defaultGeometry }) {
+  if (!equipment)
+    return (
+      <skinnedMesh name={name} geometry={defaultGeometry} material={defaultMaterial} skeleton={skeleton} />
+    )
+
+  const { blenderName, material, model } = equipment
+  const { materials, nodes } = useGLTF(model)
+  return (
+    <skinnedMesh name={name} geometry={nodes[blenderName].geometry} material={materials[material]} skeleton={skeleton} />
+  )
+}
+
 export function Model({ state }) {
+  // test, this will be passed in through the network eventually
+  const equipment = {
+    // body: equipmentMap.body.bodyTest
+  }
   const group = useRef()
   const { scene, materials, animations } = useGLTF('/models/player/player.glb')
   const { actions } = useAnimations(animations, group)
@@ -37,12 +55,48 @@ export function Model({ state }) {
   return (
     <group ref={group} dispose={null} rotation={[Math.PI / 2, 0, Math.PI]} scale={0.0015} position={[0, -1.5, 0]}>
       <primitive object={nodes.mixamorigHips} />
-      <skinnedMesh name="arml" geometry={nodes.arml.geometry} material={materials['leather.004']} skeleton={nodes.arml.skeleton} />
-      <skinnedMesh name="armr" geometry={nodes.armr.geometry} material={materials['leather.004']} skeleton={nodes.armr.skeleton} />
-      <skinnedMesh name="body" geometry={nodes.body.geometry} material={materials['leather.004']} skeleton={nodes.body.skeleton} />
-      <skinnedMesh name="head" geometry={nodes.head.geometry} material={materials['Skin.004']} skeleton={nodes.head.skeleton} />
-      <skinnedMesh name="legl" geometry={nodes.legl.geometry} material={materials['leather.004']} skeleton={nodes.legl.skeleton} />
-      <skinnedMesh name="legr" geometry={nodes.legr.geometry} material={materials['leather.004']} skeleton={nodes.legr.skeleton} />
+      <BodyPart
+        name="arml"
+        defaultGeometry={nodes.arml.geometry}
+        defaultMaterial={materials['leather.004']}
+        skeleton={nodes.arml.skeleton}
+        equipment={equipment.arml}
+      />
+      <BodyPart
+        name="armr"
+        defaultGeometry={nodes.armr.geometry}
+        defaultMaterial={materials['leather.004']}
+        skeleton={nodes.armr.skeleton}
+        equipment={equipment.armr}
+      />
+      <BodyPart
+        name="body"
+        defaultGeometry={nodes.body.geometry}
+        defaultMaterial={materials['leather.004']}
+        skeleton={nodes.body.skeleton}
+        equipment={equipment.body}
+      />
+      <BodyPart
+        name="head"
+        defaultGeometry={nodes.head.geometry}
+        defaultMaterial={materials['Skin.004']}
+        skeleton={nodes.head.skeleton}
+        equipment={equipment.head}
+      />
+      <BodyPart
+        name="legl"
+        defaultGeometry={nodes.legl.geometry}
+        defaultMaterial={materials['leather.004']}
+        skeleton={nodes.legl.skeleton}
+        equipment={equipment.legl}
+      />
+      <BodyPart
+        name="legr"
+        defaultGeometry={nodes.legr.geometry}
+        defaultMaterial={materials['leather.004']}
+        skeleton={nodes.legr.skeleton}
+        equipment={equipment.legr}
+      />
     </group>
   )
 }
