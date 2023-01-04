@@ -1,5 +1,7 @@
 import { Vector3 } from 'three';
 import { Entity } from './entity'
+import { Inventory } from '../inventory/inventory';
+import { Client } from '../client';
 
 export type keyInputs = {
   forward: Boolean
@@ -14,7 +16,8 @@ const tempVector = new Vector3();
 
 export class Player extends Entity {
   keyInputs: keyInputs
-  constructor() {
+  inventory: Inventory
+  constructor(client: Client) {
     super();
     this.keyInputs = {
       forward: false,
@@ -23,6 +26,7 @@ export class Player extends Entity {
       right: false,
       jump: false,
     };
+    this.inventory = new Inventory(client)
   }
 
   controls(delta: number) {

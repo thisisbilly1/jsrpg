@@ -1,0 +1,17 @@
+.right-click {
+  position: absolute;
+  display: flex;
+  flex-direction: column;
+  outline: 1px solid black;
+  z-index: 2;
+
+  .option {
+    padding: 5px;
+    text-align: start;
+    background-color: gray;
+
+    &:hover {
+      background-color: darkgrey;
+    }
+  }
+}

@@ -1,0 +1,28 @@
+.inventory {
+  position: absolute;
+  bottom: 5px;
+  right: 5px;
+  width: 252px;
+  height: 100px;
+  z-index: 1;
+
+  display: flex;
+  flex-wrap: wrap;
+  align-content: flex-end;
+  gap: 3px;
+
+  .slot-wrapper {
+    cursor: pointer;
+  }
+
+  .slot {
+    width: 48px;
+    height: 48px;
+    outline: 1px solid black;
+    background-color: gray;
+
+    &:hover {
+      background-color: darkgrey;
+    }
+  }
+}

@@ -11,3 +11,25 @@ export interface messageMove extends message {
   jump: Boolean
   angle: number
 }
+
+enum inventoryActionType {
+  requestInventory = 'requestInventory',
+  clickOption = 'clickOption',
+  swap = 'swap',
+}
+
+
+export interface messageInventory extends message {
+  type: inventoryActionType
+}
+
+
+export interface inventoryClickOption extends messageInventory {
+  itemIndex: number
+  action: string
+}
+
+export interface inventorySwap extends messageInventory {
+  itemIndex1: number
+  itemIndex2: number
+}

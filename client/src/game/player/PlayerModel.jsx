@@ -31,7 +31,7 @@ function BodyPart({ name, equipment, skeleton, defaultMaterial, defaultGeometry 
 }
 
 export function Model({ state }) {
-  // test, this will be passed in through the network eventually
+  // TODO: this will be passed in through the network eventually
   const equipment = {
     // body: equipmentMap.body.bodyTest
   }

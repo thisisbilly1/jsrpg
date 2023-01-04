@@ -1,12 +1,13 @@
 .chat-box {
   position: absolute;
-  bottom: 0px;
-  left: 0px;
+  bottom: 5px;
+  left: 5px;
   width: 500px;
   background-color: gray;
   display: flex;
   flex-direction: column;
   z-index: 1;
+  outline: 1px solid black;
 }
 
 .text-container {

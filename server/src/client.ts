@@ -1,5 +1,5 @@
 import { serverType } from './app';
-import { message, messageMove } from './messageTypes';
+import { inventoryClickOption, inventorySwap, message, messageInventory, messageMove } from './messageTypes';
 import { Player } from './entities/player';
 import networkContants from '../../networkConstants.json';
 
@@ -38,7 +38,7 @@ export class Client {
     this.server = server
     this.user = null
     this.pid = [...this.server.clients.keys()].length
-    this.entity = new Player()
+    this.entity = new Player(this)
 
     this.setUpSockets()
   }
@@ -62,9 +62,27 @@ export class Client {
         case networkContants.move:
           this.move(message);
           break;
+        // inventory
+        case networkContants.inventory:
+          this.inventory(message);
+          break;
       }
     })
     this.socket.on('close', () => this.server.closeConnection(this));
+  }
+
+  @isLoggedIn
+  inventory(message: messageInventory) {
+    const { type } = message
+    if (type === 'requestInventory') {
+      this.entity.inventory.updateInventory()
+    }
+    if (type === 'clickOption') {
+      this.entity.inventory.clickOption((message as inventoryClickOption).itemIndex, (message as inventoryClickOption).action)
+    }
+    if (type === 'swap') {
+      this.entity.inventory.swapItems((message as inventorySwap).itemIndex1, (message as inventorySwap).itemIndex2)
+    }
   }
 
   @isLoggedIn

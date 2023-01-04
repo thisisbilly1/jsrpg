@@ -72,6 +72,9 @@ export class client {
       case networkConstants.npcMove:
         this.handleNpcMove(message)
         break;
+      case networkConstants.inventory:
+        if (this.handleInventory) this.handleInventory(message)
+        break;
     }
   }
   handleNpcMove(message) {

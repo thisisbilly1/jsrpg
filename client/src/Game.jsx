@@ -1,4 +1,5 @@
 import { ChatBox } from "./ui/ChatBox"
+import { Inventory } from "./ui/Inventory"
 import { Canvas } from '@react-three/fiber'
 import { World } from "./game/World"
 import { Stats, Environment } from '@react-three/drei'
@@ -8,6 +9,7 @@ export function Game({ client }) {
   return (
     <>
       <ChatBox client={client} />
+      <Inventory client={client} />
       <Canvas shadows>
         <directionalLight
           intensity={1}
