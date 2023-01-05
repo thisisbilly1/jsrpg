@@ -1,5 +1,6 @@
 import { Client } from "../../client"
 import networkContants from '../../../../networkConstants.json';
+import { Inventory } from "../inventory";
 
 interface options {
   [x: string | number | symbol]: Function
@@ -17,14 +18,14 @@ export class Item {
       drop: this.drop,
     }
   }
-  examine(client: Client) {
-    client.send({
+  examine(inventory: Inventory) {
+    inventory.player.client.send({
       id: networkContants.message,
       message: this.description
     })
   }
 
-  drop(client: Client) {
-    console.log('drop')
+  drop(inventory: Inventory, index: number) {
+    console.log('drop', index)
   }
 }

@@ -6,5 +6,6 @@
   "joined": 4,
   "leave": 5,
   "npcMove": 6,
-  "inventory": 7
+  "inventory": 7,
+  "equipment": 8
 }

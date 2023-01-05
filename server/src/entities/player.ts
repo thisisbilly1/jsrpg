@@ -17,6 +17,7 @@ const tempVector = new Vector3();
 export class Player extends Entity {
   keyInputs: keyInputs
   inventory: Inventory
+  client: Client
   constructor(client: Client) {
     super();
     this.keyInputs = {
@@ -26,7 +27,8 @@ export class Player extends Entity {
       right: false,
       jump: false,
     };
-    this.inventory = new Inventory(client)
+    this.client = client
+    this.inventory = new Inventory(this)
   }
 
   controls(delta: number) {

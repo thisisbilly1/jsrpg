@@ -46,10 +46,11 @@ export function Inventory({ client }) {
   const dragItem = useRef();
   const dragOverItem = useRef();
   const [items, setItems] = useState([])
+  const [a, seta] = useState(0)
 
   // set the client handleInventory network function
   client.handleInventory = ({ items }) => {
-    setItems(null)
+    seta(a + 1)
     setItems(items)
   }
 

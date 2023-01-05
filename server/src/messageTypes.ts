@@ -1,3 +1,5 @@
+import { slot } from "./inventory/items/equipableItem"
+
 export interface message {
   id: Number
   [x: string | number | symbol]: unknown
@@ -19,6 +21,9 @@ enum inventoryActionType {
 }
 
 
+export interface messageEquipment extends message {
+  slot: slot
+}
 export interface messageInventory extends message {
   type: inventoryActionType
 }

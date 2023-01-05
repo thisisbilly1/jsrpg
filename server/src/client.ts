@@ -1,5 +1,5 @@
 import { serverType } from './app';
-import { inventoryClickOption, inventorySwap, message, messageInventory, messageMove } from './messageTypes';
+import { inventoryClickOption, inventorySwap, message, messageEquipment, messageInventory, messageMove } from './messageTypes';
 import { Player } from './entities/player';
 import networkContants from '../../networkConstants.json';
 
@@ -66,9 +66,18 @@ export class Client {
         case networkContants.inventory:
           this.inventory(message);
           break;
+        // equipment
+        case networkContants.equipment:
+          this.equipment(message)
+          break
       }
     })
     this.socket.on('close', () => this.server.closeConnection(this));
+  }
+
+  @isLoggedIn
+  equipment(message: messageEquipment) {
+    this.entity.inventory.equipment.unequip(message.slot)
   }
 
   @isLoggedIn

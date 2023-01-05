@@ -6,7 +6,6 @@ export class client {
     this.socket = null;
     this.authenticated = false;
     this.setStatus = setStatus;
-    this.handleChatMessages = null;
     this.pid = null;
 
     this.playerOthers = {};
@@ -74,6 +73,9 @@ export class client {
         break;
       case networkConstants.inventory:
         if (this.handleInventory) this.handleInventory(message)
+        break;
+      case networkConstants.equipment:
+        if (this.handlEquipment) this.handlEquipment(message)
         break;
     }
   }
