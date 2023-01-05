@@ -30,11 +30,7 @@ function BodyPart({ name, equipment, skeleton, defaultMaterial, defaultGeometry 
   )
 }
 
-export function Model({ state }) {
-  // TODO: this will be passed in through the network eventually
-  const equipment = {
-    // body: equipmentMap.body.bodyTest
-  }
+export function Model({ state, equipment }) {
   const group = useRef()
   const { scene, materials, animations } = useGLTF('/models/player/player.glb')
   const { actions } = useAnimations(animations, group)
@@ -60,42 +56,42 @@ export function Model({ state }) {
         defaultGeometry={nodes.arml.geometry}
         defaultMaterial={materials['leather.004']}
         skeleton={nodes.arml.skeleton}
-        equipment={equipment.arml}
+        equipment={equipmentMap.body[equipment.body]?.arml}
       />
       <BodyPart
         name="armr"
         defaultGeometry={nodes.armr.geometry}
         defaultMaterial={materials['leather.004']}
         skeleton={nodes.armr.skeleton}
-        equipment={equipment.armr}
+        equipment={equipmentMap.body[equipment.body]?.armr}
       />
       <BodyPart
         name="body"
         defaultGeometry={nodes.body.geometry}
         defaultMaterial={materials['leather.004']}
         skeleton={nodes.body.skeleton}
-        equipment={equipment.body}
+        equipment={equipmentMap.body[equipment.body]?.body}
       />
       <BodyPart
         name="head"
         defaultGeometry={nodes.head.geometry}
         defaultMaterial={materials['Skin.004']}
         skeleton={nodes.head.skeleton}
-        equipment={equipment.head}
+        equipment={equipmentMap.head[equipment.body]?.head}
       />
       <BodyPart
         name="legl"
         defaultGeometry={nodes.legl.geometry}
         defaultMaterial={materials['leather.004']}
         skeleton={nodes.legl.skeleton}
-        equipment={equipment.legl}
+        equipment={equipmentMap.legs[equipment.body]?.legl}
       />
       <BodyPart
         name="legr"
         defaultGeometry={nodes.legr.geometry}
         defaultMaterial={materials['leather.004']}
         skeleton={nodes.legr.skeleton}
-        equipment={equipment.legr}
+        equipment={equipmentMap.legs[equipment.body]?.legr}
       />
     </group>
   )

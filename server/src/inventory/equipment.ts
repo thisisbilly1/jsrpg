@@ -37,16 +37,16 @@ export class Equipment {
   }
 
   updateEquipment(client: Client) {
-    client.send({
+    client.server.sendAll({
       id: networkContants.equipment,
+      pid: client.pid,
+      // send all the items
       ...Object.entries(this.equipment).reduce((prev, curr) => {
         const [key, item] = curr;
         if (item) {
           return {
             ...prev,
-            [key]: {
-              name: item.name
-            }
+            [key]: item.name
           }
         }
         return prev;

@@ -75,9 +75,19 @@ export class client {
         if (this.handleInventory) this.handleInventory(message)
         break;
       case networkConstants.equipment:
-        if (this.handlEquipment) this.handlEquipment(message)
+        this.handleEquipmentMessage(message)
         break;
     }
+  }
+
+  handleEquipmentMessage(message) {
+    const pid = message.pid
+    // update our equipment if the message is from us
+    if (pid === this.playerSelf.pid) {
+      if (this.handlEquipment) this.handlEquipment(message)
+      this.playerSelf.handlEquipment(message)
+    }
+    this.playerOthers[pid]?.handlEquipment(message)
   }
   handleNpcMove(message) {
     const npcId = message.npcId;

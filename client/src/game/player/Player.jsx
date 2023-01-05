@@ -40,9 +40,12 @@ export function Player({ playerController }) {
   const [state, setState] = useState('walking')
   playerController.setState = setState
 
+  const [equipment, setEquipment] = useState({})
+  playerController.setEquipment = setEquipment
+
   return (
     <group ref={transforms}>
-      <Model state={state} />
+      <Model state={state} equipment={equipment} />
     </group>
   )
 }

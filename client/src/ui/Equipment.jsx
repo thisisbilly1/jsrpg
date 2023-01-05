@@ -7,7 +7,7 @@ function Slot({ item, onClick }) {
     <div className='slot' onClick={onClick}>
       {item &&
         <div>
-          {item.name}
+          {item}
         </div>
       }
     </div>
@@ -44,7 +44,6 @@ export function Equipment({ client }) {
   }, [])
 
   function unequip(slot) {
-    console.log(slot)
     client.send({
       id: networkConstants.equipment,
       slot,

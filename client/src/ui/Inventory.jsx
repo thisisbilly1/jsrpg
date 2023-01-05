@@ -24,6 +24,7 @@ function Slot({ item, sendRightClickOption }) {
   return (
     <div className='slot'
       onContextMenu={openRightClick}
+      onClick={() => clickOption(item.options[0])}
     >
       {item &&
         <div>
