@@ -11,6 +11,17 @@ export class client {
     this.playerOthers = {};
     this.playerSelf = new playerController();
     this.npcs = {};
+
+    this.messageHandlers = {
+      [networkConstants.login]: (message)=> this.handleLogin(message),
+      [networkConstants.joined]: (message)=> this.handlePlayerJoined(message),
+      [networkConstants.leave]: (message)=> this.handlePlayerLeave(message),
+      [networkConstants.message]: (message)=> {if (this.handleChatMessages) this.handleChatMessages(message)},
+      [networkConstants.move]: (message)=> this.handleMove(message),
+      [networkConstants.npcMove]: (message)=> this.handleNpcMove(message),
+      [networkConstants.inventory]: (message)=> {if (this.handleInventory) this.handleInventory(message)},
+      [networkConstants.equipment]: (message)=> this.handleEquipmentMessage(message),
+    }
   }
   connect() {
     this.socket = new WebSocket('ws:localhost:1337');
@@ -51,33 +62,7 @@ export class client {
   handlePackets({ data }) {
     const message = JSON.parse(data);
     // console.log(message);
-    switch (message.id) {
-      // login
-      case networkConstants.login:
-        this.handleLogin(message);
-        break;
-      case networkConstants.joined:
-        this.handlePlayerJoined(message);
-        break;
-      case networkConstants.leave:
-        this.handlePlayerLeave(message);
-        break;
-      case networkConstants.message:
-        if (this.handleChatMessages) this.handleChatMessages(message)
-        break;
-      case networkConstants.move:
-        this.handleMove(message)
-        break;
-      case networkConstants.npcMove:
-        this.handleNpcMove(message)
-        break;
-      case networkConstants.inventory:
-        if (this.handleInventory) this.handleInventory(message)
-        break;
-      case networkConstants.equipment:
-        this.handleEquipmentMessage(message)
-        break;
-    }
+    this.messageHandlers[message.id](message)
   }
 
   handleEquipmentMessage(message) {

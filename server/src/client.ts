@@ -27,12 +27,18 @@ function isLoggedOut(target: Object, key: string | symbol, descriptor: PropertyD
 interface user {
   username: string
 }
+interface messageHandler {
+  [x: string | number | symbol]: Function
+}
+
 export class Client {
   socket: any
   server: serverType
   user: user | null
   entity: Player
   pid: number
+  messageHandlers: messageHandler
+
   constructor(socket: any, server: serverType) {
     this.socket = socket
     this.server = server
@@ -40,37 +46,21 @@ export class Client {
     this.pid = [...this.server.clients.keys()].length
     this.entity = new Player(this)
 
+    this.messageHandlers = {
+      [networkContants.login]: (msg: message) => this.login(msg),
+      [networkContants.register]: (msg: message) => this.register(msg),
+      [networkContants.message]: (msg: message) => this.message(msg),
+      [networkContants.move]: (msg: messageMove) => this.move(msg),
+      [networkContants.inventory]: (msg: messageInventory) => this.inventory(msg),
+      [networkContants.equipment]: (msg: messageEquipment) => this.equipment(msg),
+    }
+
     this.setUpSockets()
   }
   setUpSockets() {
     this.socket.on('message', (str: string) => {
       const message = JSON.parse(str);
-      switch (message.id) {
-        // login
-        case networkContants.login:
-          this.login(message);
-          break;
-        // register
-        case networkContants.register:
-          this.register(message);
-          break;
-        // message
-        case networkContants.message:
-          this.message(message);
-          break;
-        // move
-        case networkContants.move:
-          this.move(message);
-          break;
-        // inventory
-        case networkContants.inventory:
-          this.inventory(message);
-          break;
-        // equipment
-        case networkContants.equipment:
-          this.equipment(message)
-          break
-      }
+      this.messageHandlers[message.id](message)
     })
     this.socket.on('close', () => this.server.closeConnection(this));
   }
