@@ -28,7 +28,7 @@ function isLoggedOut(target: Object, key: string | symbol, descriptor: PropertyD
 
 interface user {
   username: string
-  npcChats: {[x: number]: string}
+  npcChats: { [x: number]: string }
 }
 
 interface messageHandler {
@@ -44,7 +44,6 @@ export class Client {
   messageHandlers: messageHandler
   userData: any
   currentChat: Chat | undefined
-
   constructor(socket: any, server: serverType) {
     this.socket = socket
     this.server = server
@@ -78,27 +77,29 @@ export class Client {
     if (!npc) return
 
     // Start a new chat with a new npc
-    if (this.currentChat==undefined || this.currentChat.npc!=npc) {
+    if (this.currentChat == undefined || this.currentChat.npc != npc) {
       let start = this.user?.npcChats[npc.id] || "Start"
-      this.currentChat = await npc.newChat(start)
+      this.currentChat = await npc.newChat(start, this)
     }
     // Continue a chat
-    else{
+    else {
       try {
         this.currentChat.runner.advance(message.choice)
-      } catch(err) {
+      } catch (err) {
         // Exit chat
         console.log(err)
         this.currentChat = undefined
         return
       }
     }
-
+    const chat = this.currentChat.runner.currentResult
+    // stop the npc from chatting to you if the dialogue ends
+    if (!chat) this.currentChat.npc.stopTalkingTo(this);
     this.send({
       id: networkContants.npcChat,
-      npcId: npc.id,
-      chat: this.currentChat.runner.currentResult
-      });
+      npcId: this.currentChat.npc.id,
+      chat,
+    });
   }
 
   @isLoggedIn
