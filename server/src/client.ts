@@ -68,7 +68,10 @@ export class Client {
       const message = JSON.parse(str);
       this.messageHandlers[message.id](message)
     })
-    this.socket.on('close', () => this.server.closeConnection(this));
+    this.socket.on('close', () => {
+      this.currentChat?.npc.stopTalkingTo(this);
+      this.server.closeConnection(this)
+    });
   }
 
   @isLoggedIn
