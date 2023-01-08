@@ -34,7 +34,7 @@ function applyTransforms(playerController) {
   return ref
 }
 
-export function Player({ playerController }) {
+export function Player({ playerController, onClick }) {
   // model handlers
   const transforms = applyTransforms(playerController)
   const [state, setState] = useState('walking')
@@ -44,8 +44,19 @@ export function Player({ playerController }) {
   playerController.setEquipment = setEquipment
 
   return (
-    <group ref={transforms}>
+    <group ref={transforms} >
       <Model state={state} equipment={equipment} />
+
+      
+      <mesh onClick={onClick}>
+        <boxGeometry attach="geometry" args={[1, 2, 1]}/>
+        <meshLambertMaterial
+          attach="material"
+          transparent
+          opacity={0}
+        />
+      </mesh>
+
     </group>
   )
 }

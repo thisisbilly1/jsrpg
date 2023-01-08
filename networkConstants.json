@@ -7,5 +7,6 @@
   "leave": 5,
   "npcMove": 6,
   "inventory": 7,
-  "equipment": 8
+  "equipment": 8,
+  "npcChat": 9
 }

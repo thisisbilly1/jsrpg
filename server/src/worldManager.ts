@@ -2,7 +2,7 @@ import { serverType } from './app';
 import networkContants from '../../networkConstants.json';
 import { OBJLoader } from './helpers/OBJLoader';
 import * as BufferGeometryUtils from './helpers/BufferGeometryUtils';
-import { MeshBVH } from 'three-mesh-bvh';
+import { MeshBVH, computeBoundsTree } from 'three-mesh-bvh';
 import { BufferGeometry, Mesh } from 'three';
 import fs from 'fs';
 import path from 'path';
@@ -77,6 +77,10 @@ export class WorldManager {
         z: npc.mesh.position.z
       })
     }
+  }
+
+  findNpc(id: number) {
+    return this.npcs.find((npc)=> npc.id === id)
   }
 
   schedule(t1: number) {

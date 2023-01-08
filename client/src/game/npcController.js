@@ -1,8 +1,17 @@
 import { entityController } from "./entityController"
+import networkConstants from '../../../networkConstants.json';
+
 export class npcController extends entityController {
-  constructor(npcId, npcInfo) {
+  constructor(npcId, client) {
     super()
     this.npcId = npcId
-    this.npcInfo = npcInfo;
+    this.client = client;
+  }
+
+  startChat() {
+    this.client.send({
+      id: networkConstants.npcChat,
+      npcId: this.npcId
+    })
   }
 }

@@ -52,7 +52,7 @@ export function World({ client }) {
           {Object.values(client.playerOthers).map(player => <Player playerController={player} key={`player-other-${player.pid}`} />)}
 
           {/* npcs*/}
-          {Object.values(client.npcs).map(npc => <Player playerController={npc} key={`npc-${npc.npcId}`} />)}
+          {Object.values(client.npcs).map(npc => <Player playerController={npc} key={`npc-${npc.npcId}`} onClick={npc.startChat.bind(npc)}/>)}
         </Suspense>
         <group ref={world}>
           <Terrain />

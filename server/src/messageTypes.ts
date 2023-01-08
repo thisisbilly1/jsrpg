@@ -38,3 +38,8 @@ export interface inventorySwap extends messageInventory {
   itemIndex1: number
   itemIndex2: number
 }
+
+export interface messageNpcChat extends message {
+  npcId: number
+  choice: number
+}

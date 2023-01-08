@@ -49,9 +49,10 @@ export function Model({ state, equipment }) {
   }, [actions, state])
 
   return (
-    <group ref={group} dispose={null} rotation={[Math.PI / 2, 0, Math.PI]} scale={0.0015} position={[0, -1.5, 0]}>
-      <primitive object={nodes.mixamorigHips} />
+    <group ref={group} dispose={null} rotation={[Math.PI / 2, 0, Math.PI]} scale={0.0015} position={[0, -1.5, 0]} castShadow>
+      <primitive object={nodes.mixamorigHips} castShadow />
       <BodyPart
+      castShadow
         name="arml"
         defaultGeometry={nodes.arml.geometry}
         defaultMaterial={materials['leather.004']}

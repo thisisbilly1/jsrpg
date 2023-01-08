@@ -1,8 +1,11 @@
 import { Vector3 } from 'three'
 import { Entity } from './entity'
+import {Chat} from './chat'
+import { Player } from './player'
 
 const upVector = new Vector3(0, 1, 0)
 const tempVector = new Vector3()
+
 
 export class NPC extends Entity {
   id: number
@@ -10,6 +13,8 @@ export class NPC extends Entity {
   wandering: Boolean
   wanderChance: number
   wanderStopChance: number
+  dialogueLocation: String
+
   constructor(id: number) {
     super();
     this.id = id
@@ -17,6 +22,7 @@ export class NPC extends Entity {
     this.wandering = false
     this.wanderChance = 0.1
     this.wanderStopChance = 0.7
+    this.dialogueLocation = "./src/assets/npcs/bob.yarn"
   }
 
   controls(delta: number) {
@@ -38,5 +44,11 @@ export class NPC extends Entity {
 
 
     this.mesh.updateMatrixWorld()
+  }
+
+  async newChat(start: string) {
+    const chat = new Chat(this)
+    await chat.init(start)
+    return chat
   }
 }

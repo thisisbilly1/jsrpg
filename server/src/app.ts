@@ -4,6 +4,7 @@ import { WorldManager } from './worldManager';
 import { message } from './messageTypes';
 import { connect } from './db';
 import networkContants from '../../networkConstants.json';
+import { NPC } from './entities/npc';
 
 
 export interface serverType {
@@ -13,6 +14,7 @@ export interface serverType {
   clients: Map<WebSocket, Client>
   worldManager: WorldManager | null
   sendNpcs(client: Client): void
+  findNpc(id: number): NPC |  undefined
 }
 
 class Server implements serverType {
@@ -57,6 +59,9 @@ class Server implements serverType {
   }
   sendNpcs(client: Client) {
     this.worldManager?.sendAllNpcs(client)
+  }
+  findNpc(id: number) {
+    return this.worldManager?.findNpc(id)
   }
 }
 

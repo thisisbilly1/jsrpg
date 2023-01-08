@@ -4,6 +4,7 @@ import { Canvas } from '@react-three/fiber'
 import { World } from "./game/World"
 import { Stats, Environment } from '@react-three/drei'
 import { Equipment } from "./ui/Equipment"
+import { NpcChatBox } from "./ui/NpcChatBox"
 
 export function Game({ client }) {
 
@@ -12,7 +13,8 @@ export function Game({ client }) {
       <ChatBox client={client} />
       <Inventory client={client} />
       <Equipment client={client} />
-      <Canvas shadows>
+      <NpcChatBox client={client} />
+      <Canvas shadows shadowMap>
         <directionalLight
           intensity={1}
           castShadow={true}

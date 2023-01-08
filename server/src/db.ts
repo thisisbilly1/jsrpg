@@ -1,11 +1,12 @@
 import Realm from "realm";
-const TaskSchema = {
+const TaskSchema: Realm.ObjectSchema = {
   name: "User",
+  primaryKey: "username",
   properties: {
     username: "string",
     password: "string",
+    npcChats: "{}",
   },
-  primaryKey: "username",
 };
 
 export function connect() {

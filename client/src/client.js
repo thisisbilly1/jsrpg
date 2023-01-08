@@ -21,6 +21,7 @@ export class client {
       [networkConstants.npcMove]: (message)=> this.handleNpcMove(message),
       [networkConstants.inventory]: (message)=> {if (this.handleInventory) this.handleInventory(message)},
       [networkConstants.equipment]: (message)=> this.handleEquipmentMessage(message),
+      [networkConstants.npcChat]: (message)=> {if (this.handleNpcChatMessages) this.handleNpcChatMessages(message)},
     }
   }
   connect() {
@@ -77,7 +78,7 @@ export class client {
   handleNpcMove(message) {
     const npcId = message.npcId;
     // create an npc if one does not exist
-    if (!this.npcs[npcId]) this.npcs[npcId] = new npcController(npcId, {});
+    if (!this.npcs[npcId]) this.npcs[npcId] = new npcController(npcId, this);
     this.npcs[npcId].handleMove(message)
   }
   handleMove(message) {

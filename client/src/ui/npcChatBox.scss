@@ -1,0 +1,11 @@
+.npc-chat-box {
+  position: absolute;
+  bottom: 5px;
+  left: 50%;
+  width: 500px;
+  background-color: gray;
+  display: flex;
+  flex-direction: column;
+  z-index: 1;
+  outline: 1px solid black;
+}

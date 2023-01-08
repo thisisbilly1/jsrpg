@@ -1,7 +1,9 @@
 import { serverType } from './app';
-import { inventoryClickOption, inventorySwap, message, messageEquipment, messageInventory, messageMove } from './messageTypes';
+import { inventoryClickOption, inventorySwap, message, messageEquipment, messageInventory, messageMove, messageNpcChat } from './messageTypes';
 import { Player } from './entities/player';
 import networkContants from '../../networkConstants.json';
+import { NPC } from './entities/npc';
+import { Chat } from './entities/chat';
 
 function isLoggedIn(target: Object, key: string | symbol, descriptor: PropertyDescriptor) {
   const fn = descriptor.value;
@@ -26,7 +28,9 @@ function isLoggedOut(target: Object, key: string | symbol, descriptor: PropertyD
 
 interface user {
   username: string
+  npcChats: {[x: number]: string}
 }
+
 interface messageHandler {
   [x: string | number | symbol]: Function
 }
@@ -38,6 +42,8 @@ export class Client {
   entity: Player
   pid: number
   messageHandlers: messageHandler
+  userData: any
+  currentChat: Chat | undefined
 
   constructor(socket: any, server: serverType) {
     this.socket = socket
@@ -53,6 +59,7 @@ export class Client {
       [networkContants.move]: (msg: messageMove) => this.move(msg),
       [networkContants.inventory]: (msg: messageInventory) => this.inventory(msg),
       [networkContants.equipment]: (msg: messageEquipment) => this.equipment(msg),
+      [networkContants.npcChat]: (msg: messageNpcChat) => this.npcChat(msg),
     }
 
     this.setUpSockets()
@@ -63,6 +70,35 @@ export class Client {
       this.messageHandlers[message.id](message)
     })
     this.socket.on('close', () => this.server.closeConnection(this));
+  }
+
+  @isLoggedIn
+  async npcChat(message: messageNpcChat) {
+    let npc = this.server.findNpc(message.npcId)
+    if (!npc) return
+
+    // Start a new chat with a new npc
+    if (this.currentChat==undefined || this.currentChat.npc!=npc) {
+      let start = this.user?.npcChats[npc.id] || "Start"
+      this.currentChat = await npc.newChat(start)
+    }
+    // Continue a chat
+    else{
+      try {
+        this.currentChat.runner.advance(message.choice)
+      } catch(err) {
+        // Exit chat
+        console.log(err)
+        this.currentChat = undefined
+        return
+      }
+    }
+
+    this.send({
+      id: networkContants.npcChat,
+      npcId: npc.id,
+      chat: this.currentChat.runner.currentResult
+      });
   }
 
   @isLoggedIn
@@ -109,10 +145,11 @@ export class Client {
   @isLoggedOut
   login({ username, password }: message) {
     const failedLoginMessage = { id: networkContants.login, loggedIn: false };
-    if (!this.canLogIn(String(username), String(password))) this.send(failedLoginMessage);
+    const userData = this.canLogIn(String(username), String(password));
+    if (!userData) this.send(failedLoginMessage);
     else {
       // set the user
-      this.user = { username } as user;
+      this.user = userData;
       // send the login packet
       this.send({ id: networkContants.login, loggedIn: true, pid: this.pid });
       // send login message
@@ -137,14 +174,14 @@ export class Client {
     }
   }
 
-  canLogIn(username: string, password: string) {
+  private canLogIn(username: string, password: string): user | undefined {
     const user = this.server.db.objectForPrimaryKey("User", username);
-    if (!(user && user.password === password)) return false;
+    if (!(user && user.password === password)) return undefined;
     // check if they are logged in already
     for (const [_socket, client] of this.server.clients) {
-      if (client.user?.username === username) return false;
+      if (client.user?.username === username) return undefined;
     }
-    return true;
+    return user as user;
   }
 
   @isLoggedOut
