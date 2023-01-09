@@ -2,6 +2,10 @@ import { Vector3 } from 'three'
 import { Entity } from './entity'
 import { Chat } from './chat'
 import { Client } from '../client'
+import { serverType } from '../app'
+import { Item } from '../inventory/items/item'
+import { bodyTest } from '../inventory/items/bodyTest'
+
 
 const upVector = new Vector3(0, 1, 0)
 const tempVector = new Vector3()
@@ -18,8 +22,10 @@ export class NPC extends Entity {
   dialogueLocation: String
   talkingTo: Set<number>
   targetPosition: Vector3 | null
+  server: serverType
+  commands: Map<string, Function>
 
-  constructor(id: number) {
+  constructor(id: number, server: serverType) {
     super();
     this.id = id
     this.canWander = true
@@ -29,6 +35,9 @@ export class NPC extends Entity {
     this.dialogueLocation = "./src/assets/npcs/bob.yarn"
     this.talkingTo = new Set()
     this.targetPosition = null
+    this.server = server
+    this.commands = new Map();
+    this.commands.set("addItem", this.addItem)
   }
 
   controls(delta: number) {
@@ -78,10 +87,20 @@ export class NPC extends Entity {
   startTalkingTo(client: Client) {
     this.talkingTo.add(client.pid)
     // face towards whoever i am talking to
-    this.targetPosition = client.entity.mesh.position;
+    this.targetPosition = client.player.mesh.position;
   }
 
   stopTalkingTo(client: Client) {
     this.talkingTo.delete(client.pid)
+  }
+
+  addItem(client: Client) {
+    const item = new bodyTest()
+    client.player.inventory.addItem(item)
+  }
+
+  handleCommands(command: string, client: Client) {
+    const fn = this.commands.get(command)
+    if (fn) fn(client)
   }
 }

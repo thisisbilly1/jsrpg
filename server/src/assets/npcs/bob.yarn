@@ -70,4 +70,9 @@ title: OtherNode
 Here we are in a different node! Nodes let you divide up your content into different blocks, which makes it easier to manage.
 
 We're all done! Try changing the text in the editor to the left, and clicking Test again!
+-> Give me some armour
+    You got it, pal!
+    <<addItem>>
+-> Bye
+    poo
 ===

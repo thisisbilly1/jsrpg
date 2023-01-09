@@ -8,15 +8,15 @@ import { Equipment } from "./equipment";
 export class Inventory {
   items: (Item | null)[]
   player: Player
-  maxItems: number
+  public static maxItems: number = 30
+
   equipment: Equipment
   constructor(player: Player) {
     this.player = player
-    this.maxItems = 30
     // inventory should always be 30
     this.items = [
       new bodyTest(),
-      ...new Array(this.maxItems - 1)
+      ...new Array(Inventory.maxItems - 1)
     ]
     this.equipment = new Equipment(this)
   }
@@ -46,5 +46,18 @@ export class Inventory {
         options: Object.keys(item.options)
       }))
     })
+  }
+
+  addItem(item: Item) {
+    // Find empty slot
+    for(let i=0; i<Inventory.maxItems; i++) {
+      const slot = this.items[i];
+      if (!slot) {
+        this.items[i] = item
+        break
+      }
+    }
+    console.log(this.items)
+    this.updateInventory()
   }
 }

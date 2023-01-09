@@ -15,6 +15,7 @@ export interface serverType {
   worldManager: WorldManager | null
   sendNpcs(client: Client): void
   findNpc(id: number): NPC |  undefined
+  findClient(pid: number): Client |  undefined
 }
 
 class Server implements serverType {
@@ -62,6 +63,9 @@ class Server implements serverType {
   }
   findNpc(id: number) {
     return this.worldManager?.findNpc(id)
+  }
+  findClient(pid: number) {
+    return Array.from(this.clients.values()).find((client: Client) => client.pid === pid)
   }
 }
 

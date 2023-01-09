@@ -24,7 +24,7 @@ export class WorldManager {
     this.physicsSteps = 3
     this.npcs = [
       // test npc
-      new NPC(0)
+      new NPC(0, this.server)
     ]
   }
 
@@ -52,15 +52,15 @@ export class WorldManager {
     // update all the clients' entities
     for (const [_, client] of this.server.clients) {
       for (let i = 0; i < this.physicsSteps; i++) {
-        client.entity.update(this, timeElapsed / this.physicsSteps)
+        client.player.update(this, timeElapsed / this.physicsSteps)
       }
-      if (client.entity.shouldUpdateNetwork) {
+      if (client.player.shouldUpdateNetwork) {
         this.server.sendAll({
           id: networkContants.move,
           pid: client.pid,
-          x: client.entity.mesh.position.x,
-          y: client.entity.mesh.position.y,
-          z: client.entity.mesh.position.z
+          x: client.player.mesh.position.x,
+          y: client.player.mesh.position.y,
+          z: client.player.mesh.position.z
         })
       }
     }

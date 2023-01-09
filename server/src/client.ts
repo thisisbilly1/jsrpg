@@ -2,8 +2,9 @@ import { serverType } from './app';
 import { inventoryClickOption, inventorySwap, message, messageEquipment, messageInventory, messageMove, messageNpcChat } from './messageTypes';
 import { Player } from './entities/player';
 import networkContants from '../../networkConstants.json';
-import { NPC } from './entities/npc';
 import { Chat } from './entities/chat';
+import { User } from './db';
+import { Inventory } from './inventory/inventory';
 
 function isLoggedIn(target: Object, key: string | symbol, descriptor: PropertyDescriptor) {
   const fn = descriptor.value;
@@ -25,12 +26,6 @@ function isLoggedOut(target: Object, key: string | symbol, descriptor: PropertyD
   }
 }
 
-
-interface user {
-  username: string
-  npcChats: { [x: number]: string }
-}
-
 interface messageHandler {
   [x: string | number | symbol]: Function
 }
@@ -38,8 +33,8 @@ interface messageHandler {
 export class Client {
   socket: any
   server: serverType
-  user: user | null
-  entity: Player
+  user: User | null
+  player: Player
   pid: number
   messageHandlers: messageHandler
   userData: any
@@ -49,7 +44,7 @@ export class Client {
     this.server = server
     this.user = null
     this.pid = [...this.server.clients.keys()].length
-    this.entity = new Player(this)
+    this.player = new Player(this)
 
     this.messageHandlers = {
       [networkContants.login]: (msg: message) => this.login(msg),
@@ -95,47 +90,65 @@ export class Client {
         return
       }
     }
-    const chat = this.currentChat.runner.currentResult
-    // stop the npc from chatting to you if the dialogue ends
-    if (!chat) this.currentChat.npc.stopTalkingTo(this);
+    let chat = this.currentChat.runner.currentResult
+    if (chat?.command) {
+      npc.handleCommands(chat.command, this)
+      this.currentChat.runner.advance()
+      chat = this.currentChat.runner.currentResult
+    }
+
+    // Update user for saving
+    this.server.db.write(() => {
+      if (this.user && chat) {
+        this.user.npcChats[npc!.id] = chat.metadata.title
+      }
+    })
+
+    // Send to client
     this.send({
       id: networkContants.npcChat,
       npcId: this.currentChat.npc.id,
       chat,
     });
+
+    // Stop the npc from chatting to you if the dialogue ends
+    if (!chat) {
+      this.currentChat.npc.stopTalkingTo(this)
+      this.currentChat = undefined
+    }
   }
 
   @isLoggedIn
   equipment(message: messageEquipment) {
-    this.entity.inventory.equipment.unequip(message.slot)
+    this.player.inventory.equipment.unequip(message.slot)
   }
 
   @isLoggedIn
   inventory(message: messageInventory) {
     const { type } = message
     if (type === 'requestInventory') {
-      this.entity.inventory.updateInventory()
+      this.player.inventory.updateInventory()
     }
     if (type === 'clickOption') {
-      this.entity.inventory.clickOption((message as inventoryClickOption).itemIndex, (message as inventoryClickOption).action)
+      this.player.inventory.clickOption((message as inventoryClickOption).itemIndex, (message as inventoryClickOption).action)
     }
     if (type === 'swap') {
-      this.entity.inventory.swapItems((message as inventorySwap).itemIndex1, (message as inventorySwap).itemIndex2)
+      this.player.inventory.swapItems((message as inventorySwap).itemIndex1, (message as inventorySwap).itemIndex2)
     }
   }
 
   @isLoggedIn
   move({ forward, back, left, right, jump, angle }: messageMove) {
-    this.entity.keyInputs = {
+    this.player.keyInputs = {
       forward,
       back,
       left,
       right,
       jump
     }
-    this.entity.angle = angle;
+    this.player.angle = angle;
     if (jump) {
-      if (this.entity.framesOffGround <= 20) this.entity.velocity.y = 10;
+      if (this.player.framesOffGround <= 20) this.player.velocity.y = 10;
     }
   }
 
@@ -153,9 +166,16 @@ export class Client {
     if (!userData) this.send(failedLoginMessage);
     else {
       // set the user
-      this.user = userData;
+      this.user = userData
+      
+      if (!this.user.inventory || this.user.inventory.length == 0) {
+        this.player.inventory.items = new Array(Inventory.maxItems)
+      }else {
+        this.player.inventory.items = this.user.inventory
+      }
+
       // send the login packet
-      this.send({ id: networkContants.login, loggedIn: true, pid: this.pid });
+      this.send({ id: networkContants.login, loggedIn: true, pid: this.pid })
       // send login message
       this.sendOthers({
         id: networkContants.joined,
@@ -178,14 +198,14 @@ export class Client {
     }
   }
 
-  private canLogIn(username: string, password: string): user | undefined {
-    const user = this.server.db.objectForPrimaryKey("User", username);
+  private canLogIn(username: string, password: string): User | undefined {
+    const user = this.server.db.objectForPrimaryKey("User", username) as User;
     if (!(user && user.password === password)) return undefined;
     // check if they are logged in already
     for (const [_socket, client] of this.server.clients) {
       if (client.user?.username === username) return undefined;
     }
-    return user as user;
+    return user;
   }
 
   @isLoggedOut
